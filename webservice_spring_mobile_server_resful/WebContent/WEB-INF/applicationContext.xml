@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="  
+        http://www.springframework.org/schema/beans  
+        http://www.springframework.org/schema/beans/spring-beans.xsd  
+        http://cxf.apache.org/jaxws  
+        http://cxf.apache.org/schemas/jaxws.xsd 
+        http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
+
+    <!-- 基础配置 -->
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	
+	<!-- 请求日志拦截器，将会打印请求日志 -->
+	<bean id="inLogInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+	<!-- 响应日志拦截器，将会打印响应日志 -->
+	<bean id="outLogInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+	
+
+	<!-- 配置本系统的手机号码查询service -->
+	<bean id="mobileService" class="cn.Higgin.ws.mobile.service.MobileServiceImpl">
+	</bean>
+	
+	<!-- 发布手机号查询服务 -->
+	<!-- soap webservic:此种方式不支持GET请求或者是resful请求,
+	               只能通过webservice客户端调用
+	 -->
+	<!-- <jaxws:server id="mobileService1" serviceClass="cn.Higgin.ws.mobile.service.MobileService"
+		address="/mobile1">
+		<jaxws:serviceBean>
+			要暴露的 bean 的引用
+			<ref bean="mobileService" />
+		</jaxws:serviceBean>
+		<jaxws:inInterceptors>
+			<ref bean="inLogInterceptor" />
+		</jaxws:inInterceptors>
+		<jaxws:outInterceptors>
+			<ref bean="outLogInterceptor" />
+		</jaxws:outInterceptors> 
+	</jaxws:server> -->
+	
+	
+    <!-- restful webservice：发布restful必须使用jaxrs:server实现 -->
+	<jaxrs:server id="restServiceContainer" address="/mobile2">
+		<!-- Interceptors -->
+		<jaxrs:inInterceptors>
+			<ref bean="inLogInterceptor" />
+		</jaxrs:inInterceptors>
+		<jaxrs:outInterceptors>
+			<ref bean="outLogInterceptor" />
+		</jaxrs:outInterceptors>
+		<!-- serviceBeans -->
+		<jaxrs:serviceBeans>
+			<ref bean="mobileService" />
+		</jaxrs:serviceBeans>
+		<jaxrs:extensionMappings>
+			<entry key="feed" value="application/atom+xml" />
+			<entry key="json" value="application/json" />
+			<entry key="xml" value="application/xml" />
+			<entry key="html" value="text/html" />
+		</jaxrs:extensionMappings>
+		<jaxrs:languageMappings>
+			<entry key="en" value="en-gb" />
+			<entry key="cn" value="cn-ZH"/>
+		</jaxrs:languageMappings>
+		<jaxrs:providers>
+			<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
+		</jaxrs:providers>
+	</jaxrs:server>
+</beans>    
