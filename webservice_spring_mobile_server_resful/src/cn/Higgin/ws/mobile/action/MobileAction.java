@@ -12,6 +12,7 @@ public class MobileAction {
 	@Autowired
 	private MobileService mobileService;
 
+	
 	@RequestMapping("/queryMobile")
 	public String queryMobile(Model model, String phone) throws Exception {
 		// 调用service查询手机号
